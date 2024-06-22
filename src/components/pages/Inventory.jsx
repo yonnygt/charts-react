@@ -63,8 +63,8 @@ const Inventory = () => {
     <>
     <DatePicker/>
     <div className="flex flex-wrap -mx-4">
-      <div className="w-full md:w-1/2 p-4" data-theme = {useTheme}>
-        <div className="rounded-lg shadow-2xl p-4 " data-theme = {useTheme}>
+      <div className="w-full md:w-1/2 p-4 " data-theme = {useTheme}>
+        <div className="rounded-lg shadow-2xl p-4 dark:bg-gray-800 ">
           <h2 className="text-xl font-semibold mb-4">Gráfico 1</h2>
           <div className="relative h-64">
           <Bar data={data2} options={{ ...options, plugins: { ...options.plugins, title: { text: 'Revenue' } } }} />
@@ -72,7 +72,7 @@ const Inventory = () => {
         </div>
       </div>
       <div className="w-full md:w-1/2 p-4" data-theme = {useTheme}>
-        <div className="rounded-lg shadow-2xl p-4" data-theme = {useTheme}>
+        <div className="rounded-lg shadow-2xl p-4 dark:bg-gray-800" >
           <h2 className="text-xl font-semibold mb-4">Gráfico 2</h2>
           <div className="relative h-64">
             <Pie 
