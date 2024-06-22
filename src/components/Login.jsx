@@ -6,9 +6,11 @@ import { Button } from "./ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from './AuthContext';
 import fondo from '../assets/logo.jfif';
+import { useTheme } from './ui/ThemeContext';
 import axios from 'axios';
 
 export default function Login() {
+  const { theme, changeTheme } = useTheme();
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [remember, setRemember] = useState(false);
@@ -34,11 +36,11 @@ export default function Login() {
 
   return (
     <section className="bg-cover bg-center min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${fondo})` }}>
-      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow dark:border sm:max-w-md w-full mx-4 sm:mx-auto dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow sm:max-w-md w-full mx-4 sm:mx-auto" data-theme={theme}>
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-4">Inicia Sesión</h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <Label htmlFor="email">Usuario</Label>
+            <Label htmlFor="email" data-theme={theme}>Usuario</Label>
             <Input
               id="email"
               type="text"
@@ -46,6 +48,7 @@ export default function Login() {
               onChange={(e) => setUsername(e.target.value)}
               required
               placeholder="Usuario"
+              data-theme={theme}
               className={`${emailError ? "border-red-500" : ""}`}
             />
             {error && <p className="text-red-500">{error}</p>}
@@ -59,6 +62,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
+              data-theme={theme}
               className={`${passwordError ? "border-red-500" : ""}`}
             />
             {passwordError && <div className="text-red-500 text-sm mt-1">{passwordError}</div>}
