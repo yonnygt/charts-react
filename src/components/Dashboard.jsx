@@ -1,6 +1,8 @@
+// src/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTheme } from './ui/ThemeContext'; // Importa el hook useTheme
 import KeyIcon from '@heroicons/react/24/outline/KeyIcon';
 import Squares2X2Icon from '@heroicons/react/24/outline/Squares2X2Icon';
 import InboxStackIcon from '@heroicons/react/24/outline/InboxStackIcon';
@@ -9,29 +11,15 @@ import SunIcon from '@heroicons/react/24/outline/SunIcon';
 import MoonIcon from '@heroicons/react/24/outline/MoonIcon';
 import CogIcon from '@heroicons/react/24/outline/CogIcon';
 import ArrowRightOnRectangleIcon from '@heroicons/react/24/outline/ArrowLeftOnRectangleIcon';
-import logo from './logo-lasplumas.png';
+import logo from '../../src/assets/logo-lasplumas.png';
 
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, changeTheme } = useTheme(); // Usa el hook useTheme para acceder al tema y la función para cambiarlo
 
-  const getInitialTheme = () => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
-
-  const [theme, setTheme] = useState(getInitialTheme);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const changeTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
 
   const getTitle = () => {
     switch (location.pathname) {
@@ -109,7 +97,7 @@ function Dashboard() {
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto p-6" data-theme={theme}>
+        <div className="flex-1 overflow-y-auto p-6 dark:bg-zinc-900" >
           <Outlet />
         </div>
       </div>
