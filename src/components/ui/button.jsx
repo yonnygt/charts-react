@@ -7,7 +7,7 @@ export const Button = ({ type, children, onClick, className }) => {
     <button
       type={type}
       onClick={onClick}
-      className={` px-4 py-2 border border-transparent text-lg font-medium rounded-md shadow-sm text-white text-center bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${className}`}
+      className={` px-4 py-2 border border-transparent text-lg font-medium rounded-md shadow-sm text-white text-center bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${className}`}
     >
       {children}
     </button>

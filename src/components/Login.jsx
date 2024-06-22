@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from './AuthContext';
-import fondo from './logo.jfif'; // Asegúrate de que la ruta sea correcta.
+import fondo from '../assets/logo.jfif';
 import axios from 'axios';
 
 export default function Login() {
