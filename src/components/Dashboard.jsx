@@ -18,7 +18,7 @@ function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, changeTheme } = useTheme(); // Usa el hook useTheme para acceder al tema y la función para cambiarlo
+  const { theme, changeTheme } = useTheme();
 
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -31,6 +31,8 @@ function Dashboard() {
         return 'Inventario';
       case '/analytics':
         return 'Análisis';
+        case '/admin/users':
+        return 'Panel de administración';
       default:
         return '';
     }
@@ -63,10 +65,18 @@ function Dashboard() {
                 <ChartBarIcon className="h-6 w-6" />
                 Análisis
               </NavLink>
+              {user.role === 'admin' && (
+                <NavLink to="/admin/users"className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? 'bg-gray-300 text-gray-900 dark:bg-gray-600 dark:text-gray-50' : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-500'} data-theme={theme}`}>  
+                  <KeyIcon className="h-6 w-6" />
+                  Admin
+                </NavLink>
+            )}
             </nav>
           </div>
         </div>
       </div>
+      
       <div className="flex flex-col flex-1">
         <header className="flex h-14 lg:h-[60px] items-center gap-4 bg-base-100/40 px-6 shadow-lg sticky top-0" data-theme={theme}>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
