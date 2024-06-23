@@ -36,7 +36,7 @@ export default function Login() {
 
   return (
     <section className="bg-cover bg-center min-h-screen flex items-center justify-center" style={{ backgroundImage: `url(${fondo})` }}>
-      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow sm:max-w-md w-full mx-4 sm:mx-auto" data-theme={theme}>
+      <div className="bg-opacity-90 p-8 rounded-lg shadow sm:max-w-md w-full mx-4 sm:mx-auto" data-theme={theme}>
         <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-4">Inicia Sesión</h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
