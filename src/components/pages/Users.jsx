@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
-import { useTheme } from '../ui/ThemeContext'; 
+import { useTheme } from '../ui/ThemeContext';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import Modal from '../ui/modal';
+import Select from 'react-select';
 
 const Users = () => {
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -30,13 +32,27 @@ const Users = () => {
         console.error('Error fetching users', error);
       }
     };
+
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/roles', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        setRoles(response.data);
+      } catch (error) {
+        console.error('Error fetching roles', error);
+      }
+    };
+
     fetchUsers();
+    fetchRoles();
   }, []);
 
   const handleEdit = (user) => {
     setEditUser(user);
     setUsername(user.username);
-    setRole(user.role);
+    setRole(user.role_id);
+    setIsEditModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -68,7 +84,7 @@ const Users = () => {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(`http://localhost:5000/admin/users`, { username, password, role }, {
+      const response = await axios.post(`http://localhost:5000/users`, { username, password, role }, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       setUsers([...users, response.data]);
@@ -79,6 +95,11 @@ const Users = () => {
     } catch (error) {
       console.error('Error registering user', error);
     }
+  };
+
+  const getRoleName = (roleId) => {
+    const role = roles.find(r => r.id === roleId);
+    return role ? role.name : 'N/A';
   };
 
   return (
@@ -101,12 +122,9 @@ const Users = () => {
             <tr key={user.id}>
               <td className="py-2">{user.id}</td>
               <td className="py-2">{user.username}</td>
-              <td className="py-2">{user.role}</td>
+              <td className="py-2">{getRoleName(user.role_id)}</td>
               <td className="py-1">
-                <button onClick={() => {
-                    handleEdit(user)
-                    setIsEditModalOpen(true);
-                  }} className="btn btn-outline btn-success btn-sm mr-2">Editar</button>
+                <button onClick={() => handleEdit(user)} className="btn btn-outline btn-success btn-sm mr-2">Editar</button>
                 <button onClick={() => {
                   setUserToDelete(user);
                   setIsDeleteModalOpen(true);
@@ -116,27 +134,31 @@ const Users = () => {
           ))}
         </tbody>
       </table>
-          {/* Modal para editar el usuario */}
+
+      {/* Modal para editar el usuario */}
       <Modal 
         title="Edicion de Usuario" 
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)}
-        onEdit={() => handleSave()}>
+        onEdit={handleSave}>
         <div className="mt-4">
           <div className="mb-2">
-            <label className="block text-sm"  >Username</label>
-            <Input value={username} data-theme = {theme} onChange={(e) => setUsername(e.target.value)} className="border rounded w-full py-1 px-2" />
+            <label className="block text-sm">Nombre</label>
+            <Input value={username} data-theme={theme} onChange={(e) => setUsername(e.target.value)} className="border rounded w-full py-1 px-2" />
           </div>
           <div className="mb-2">
             <label className="block text-sm">Role</label>
-            <Input value={role} data-theme = {theme} onChange={(e) => setRole(e.target.value)} className="border rounded w-full py-1 px-2" />
+            <Select 
+              value={{ value: role, label: getRoleName(role) }}
+              onChange={(selectedOption) => setRole(selectedOption.value)}
+              options={roles.map(r => ({ value: r.id, label: r.name }))}
+              className="rounded w-full py-1 px-2 dark:placeholder-gray-700" data-theme={theme}
+            />
           </div>
         </div>
-        {/* <p>Esta acción no se puede deshacer.</p> */}
-        
       </Modal>
 
-        {/* Modal para confirmar eliminación */}
+      {/* Modal para confirmar eliminación */}
       <Modal 
         title="¿Está seguro de eliminar este usuario?" 
         isOpen={isDeleteModalOpen} 
@@ -153,7 +175,7 @@ const Users = () => {
         <div className="mt-4">
           <div className="mb-2">
             <label className="block text-sm">Nombre</label>
-            <Input onChange={(e) => setUsername(e.target.value)} className="border rounded w-full py-1 px-2" />
+            <Input value={username} onChange={(e) => setUsername(e.target.value)} className="border rounded w-full py-1 px-2" />
           </div>
           <div className="mb-2">
             <label className="block text-sm">Contraseña</label>
@@ -165,14 +187,19 @@ const Users = () => {
           </div>
           <div className="mb-2">
             <label className="block text-sm">Role</label>
-            <Input onChange={(e) => setRole(e.target.value)} className="border rounded w-full py-1 px-2" />
+            <Select 
+              value={{ value: role, label: getRoleName(role) }}
+              onChange={(selectedOption) => setRole(selectedOption.value)}
+              options={roles.map(r => ({ value: r.id, label: r.name }))}
+              className="border rounded w-full py-1 px-2"
+            />
           </div>
           <Button onClick={handleRegister} className="bg-green-500 text-white px-4 py-2 rounded">Registrar</Button>
         </div>
-
       </Modal>
     </div>
   );
 };
 
 export default Users;
+  

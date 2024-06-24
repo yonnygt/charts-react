@@ -15,15 +15,16 @@ export const Button = ({ type, children, onClick, className }) => {
 };
 
 Button.propTypes = {
-  type: PropTypes.oneOf(['button', 'submit', 'reset']).isRequired,
+  // type: PropTypes.oneOf(['button', 'submit', 'reset']).isRequired,
   children: PropTypes.node.isRequired,
   onClick: PropTypes.func,
   className: PropTypes.string,
 };
 
-Button.defaultProps = {
-  onClick: null,
-  className: '',
-};
+// Button.defaultProps = {
+//   onClick: null,
+//   className: '',
+// };
+
 
 export default Button;

@@ -21,17 +21,31 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
-app.post('/admin/users', async (req, res) => {
+app.post('/users', async (req, res) => {
   const { username, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const result = await pool.query(
-      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO users (username, password, role_id) VALUES ($1, $2, $3) RETURNING *',
       [username, hashedPassword, role || 'user']
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/inventory', async (req, res) => {
+  const { startDate, endDate } = req.query;
+  try {
+    const { rows } = await pool.query(
+      'SELECT org, seller, grand_total, sale_date FROM sales WHERE sale_date BETWEEN $1 AND $2',
+      [startDate, endDate]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching sales data', error);
+    res.status(500).send('Server error');
   }
 });
 
@@ -54,7 +68,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -67,7 +80,44 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Ruta para obtener todos los usuarios (solo para admin)
+app.get('/users', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
+  try {
+    const result = await pool.query('SELECT * FROM users');
+    res.json(result.rows); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CRUD para los usuarios (solo para admin)
+app.put('/users/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
+  const { id } = req.params;
+  const { username, role } = req.body;
+  try {
+    const result = await pool.query('UPDATE users SET username = $1, role_id = $2 WHERE id = $3 RETURNING *', [username, role, id]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/users/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Ruta para obtener todos los roles (solo para admin)
 app.get('/roles', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
   try {
     const result = await pool.query('SELECT * FROM role');
     res.json(result.rows);
@@ -76,42 +126,43 @@ app.get('/roles', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ user: req.user });
-});
-
-/// CRUD para los usuarios (solo para admin)
-app.get('/users', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403); // Admin role ID is 1
+// CRUD para los roles (solo para admin)
+app.post('/roles', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
+  const { name } = req.body;
   try {
-    const result = await pool.query('SELECT users.id, users.username, role.name as role FROM users JOIN role ON users.role_id = role.id');
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.put('/users/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403); // Admin role ID is 1
-  const { id } = req.params;
-  const { username, role_id } = req.body;
-  try {
-    const result = await pool.query('UPDATE users SET username = $1, role_id = $2 WHERE id = $3 RETURNING *', [username, role_id, id]);
+    const result = await pool.query('INSERT INTO role (name) VALUES ($1) RETURNING *', [name]);
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.delete('/users/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403); // Admin role ID is 1
+app.put('/roles/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
+  const { id } = req.params;
+  const { name } = req.body;
+  try {
+    const result = await pool.query('UPDATE role SET name = $1 WHERE id = $2 RETURNING *', [name, id]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/roles/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 1) return res.sendStatus(403);
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    await pool.query('DELETE FROM role WHERE id = $1', [id]);
     res.sendStatus(204);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/protected', authenticateToken, (req, res) => {
+  res.json({ user: req.user });
 });
 
 const PORT = process.env.PORT || 5000;

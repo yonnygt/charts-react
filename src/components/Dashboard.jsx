@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from './ui/ThemeContext'; // Importa el hook useTheme
 import KeyIcon from '@heroicons/react/24/outline/KeyIcon';
+import Confg from '@heroicons/react/24/outline/AdjustmentsHorizontalIcon';
 import Squares2X2Icon from '@heroicons/react/24/outline/Squares2X2Icon';
 import InboxStackIcon from '@heroicons/react/24/outline/InboxStackIcon';
 import ChartBarIcon from '@heroicons/react/24/outline/ChartBarIcon';
@@ -38,11 +39,13 @@ function Dashboard() {
     }
   };
 
+  // const usr = user.role; 
+  // console.log( "usr: "+usr);
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row" data-theme={theme}>
+    <div className="flex min-h-screen flex-col lg:flex-row dark:bg-gray-800" data-theme={theme}>
       <div className={`fixed inset-0 z-30 bg-black opacity-50 transition-opacity lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`} onClick={() => setSidebarOpen(false)}></div>
       <div className={`fixed inset-y-0 left-0 z-40 w-64 lg:static lg:w-64 transition-transform transform lg:transform-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} data-theme={theme}>
-        <div className="flex flex-col gap-2 h-full">
+        <div className="flex flex-col gap-2 h-full dark:bg-gray-800">
           <div className="flex h-[60px] items-center px-6">
             <NavLink to="/dashboard" className="flex items-center gap-2 font-semibold">
               <img className="w-full h-12 mr-2" src={logo} alt="Logo Las Plumas" />
@@ -65,20 +68,27 @@ function Dashboard() {
                 <ChartBarIcon className="h-6 w-6" />
                 Análisis
               </NavLink>
-              {user.role === 'admin' && (
-                <NavLink to="/admin/users"className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? 'bg-gray-300 text-gray-900 dark:bg-gray-600 dark:text-gray-50' : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-500'} data-theme={theme}`}>  
-                  <KeyIcon className="h-6 w-6" />
-                  Admin
-                </NavLink>
-            )}
+              {user.role === 1 && (
+                <div>
+                  <NavLink to="/admin/users" className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? 'bg-gray-300 text-gray-900 dark:bg-gray-600 dark:text-gray-50' : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-500'} data-theme={theme}`}>
+                    <KeyIcon className="h-6 w-6" />
+                    Admin
+                  </NavLink>
+                  <NavLink to="/admin/roles" className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? 'bg-gray-300 text-gray-900 dark:bg-gray-600 dark:text-gray-50' : 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-500'} data-theme={theme}`}>
+                    <Confg className="h-6 w-6" />
+                    Roles
+                  </NavLink>
+                </div>
+              )}
             </nav>
           </div>
         </div>
       </div>
       
-      <div className="flex flex-col flex-1">
-        <header className="flex h-14 lg:h-[60px] items-center gap-4 bg-base-100/40 px-6 shadow-lg sticky top-0" data-theme={theme}>
+      <div className="flex flex-col flex-1 ">
+        <header className="flex h-14 lg:h-[60px] items-center gap-4 bg-base-100/40 px-6 shadow-lg sticky top-0 " data-theme={theme}>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
             <Bars3Icon className="h-6 w-6 text-gray-500" />
           </button>
