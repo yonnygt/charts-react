@@ -1,14 +1,15 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
-import AdminRoute from './components/AdminRoute'; // Nuevo componente para rutas de admin
+import Login            from './components/Login';
+import Register         from './components/Register';
+import Dashboard        from './components/Dashboard';
+import AdminRoute       from './components/AdminRoute';
 import { AuthProvider } from './components/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Inventory from './components/pages/Inventory';
-import Analytics from './components/pages/Analytics';
-import Users from './components/pages/Users'; // Nuevo componente para gestión de usuarios
+import ProtectedRoute   from './components/ProtectedRoute';
+import Inventory        from './components/pages/Inventory';
+import Analytics        from './components/pages/Analytics';
+import Users            from './components/pages/Users'; 
+import Roles            from './components/pages/Roles';
 
 function App() {
   return (
@@ -20,7 +21,14 @@ function App() {
           <Route path="/dashboard" element={<div className='dark:text-gray-50'>Bienvenido al Dashboard</div>} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/admin/users" element={<AdminRoute><Users /></AdminRoute>} />
+          <Route path="/admin/users" element={
+            <AdminRoute>
+            <Users />
+          </AdminRoute>} />
+          <Route path="/admin/roles" element={
+            <AdminRoute>
+            <Roles />
+          </AdminRoute>} />
         </Route>
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

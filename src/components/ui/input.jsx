@@ -2,10 +2,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const Input = ({ id, type, value, onChange, placeholder, className }) => {
+export const Input = ({  type, value, onChange, placeholder, className }) => {
   return (
     <input
-      id={id}
       type={type}
       value={value}
       onChange={onChange}
@@ -16,17 +15,16 @@ export const Input = ({ id, type, value, onChange, placeholder, className }) => 
 };
 
 Input.propTypes = {
-  id: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  // type: PropTypes.string.isRequired,
+  // value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   className: PropTypes.string,
 };
 
-Input.defaultProps = {
-  placeholder: '',
-  className: '',
-};
+// Input.defaultProps = {
+//   placeholder: '',
+//   className: '',
+// };
 
 export default Input;

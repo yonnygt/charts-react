@@ -5,9 +5,9 @@ import { useAuth } from './AuthContext';
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
   if (user === null) {
-    return <div>Loading...</div>;
+    return <div>Loading.</div>;
   }
-  return user.role === 'admin' ? children : <Navigate to="/dashboard" />;
+  return user.role === 1 ? children : <Navigate to="/dashboard" />;
 };
 
 export default AdminRoute;
