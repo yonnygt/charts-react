@@ -1,106 +1,109 @@
 // src/pages/Inventory.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
-import { useTheme } from '../ui/ThemeContext';
 import { DatePicker } from '../ui/DatePicker';
-import ArrowDownTrayIcon from '@heroicons/react/24/outline/ArrowDownTrayIcon';
-import ShareIcon from '@heroicons/react/24/outline/ShareIcon';
-import EnvelopeIcon from '@heroicons/react/24/outline/EnvelopeIcon';
-import EllipsisVerticalIcon from '@heroicons/react/24/outline/EllipsisVerticalIcon';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useTheme } from '../ui/ThemeContext';
+import dayjs from 'dayjs';
 
 const Inventory = () => {
   const { theme } = useTheme();
-  const [salesData, setSalesData] = useState([]);
+  const [inventoryData, setInventoryData] = useState([]);
   const [dateRange, setDateRange] = useState({ startDate: new Date(), endDate: new Date() });
 
   useEffect(() => {
-    fetchSalesData();
+    fetchInventoryData();
   }, [dateRange]);
 
-  const fetchSalesData = async () => {
+  const fetchInventoryData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/inventory', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         params: {
-          startDate: dateRange.startDate,
           endDate: dateRange.endDate
         }
       });
-      setSalesData(response.data);
+      setInventoryData(response.data);
+      // console.log(response.data);
     } catch (error) {
-      console.error('Error fetching sales data', error);
+      console.error('Error fetching inventory data', error);
     }
   };
 
-  const processData = () => {
-    const orgs = [...new Set(salesData.map(sale => sale.org))];
-    const data = orgs.map(org => {
-      const orgSales = salesData.filter(sale => sale.org === org);
-      return orgSales.reduce((acc, sale) => acc + parseFloat(sale.grand_total), 0);
-    });
-
-    return {
-      labels: orgs,
-      datasets: [
-        {
-          label: 'Grand Total',
-          data,
-          backgroundColor: orgs.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`),
-          borderColor: orgs.map(() => `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`),
-          borderWidth: 1,
-        }
-      ]
-    };
-  };
-
-  const data = processData();
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Sales by Organization',
-      },
-    },
+  const handleRefresh = () => {
+    fetchInventoryData();
   };
 
   const handleDateChange = (newDateRange) => {
     setDateRange(newDateRange);
   };
 
-  const handleRefresh = () => {
-    fetchSalesData();
-  };
+  // Columnas de la DataGrid
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'org', headerName: 'Organizacion', width: 200, headerClassName: 'super-app-theme--header' },
+    { field: 'name', headerName: 'Nombre', width: 300, headerClassName: 'super-app-theme--header' },
+    { field: 'qtyavailable', headerName: 'Cant Disponible', width: 200, headerClassName: 'super-app-theme--header' },
+    { field: 'reception_date', headerName: 'Fecha Recepcion', width: 300, headerClassName: 'super-app-theme--header'}
+  ];
+
+  const getThemeStyles = (theme) => ({
+    backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
+    color: theme === 'dark' ? '#fff' : '#000',
+    '& .MuiDataGrid-root': {
+      border: '1px solid #1f2937', // Adding border color to the DataGrid
+    },
+    '& .MuiDataGrid-cell': {
+      borderBottom: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+    },
+    '& .MuiDataGrid-columnHeaders': {
+      backgroundColor: theme === 'dark' ? '#444' : '#f5f5f5',
+      borderBottom: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+    },
+    '& .MuiDataGrid-border': {
+      borderColor: theme === 'dark' ? '#1d232a' : '#f5f5f5',
+      // borderBottom: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+    },
+    '& .MuiDataGrid-footerContainer': {
+      backgroundColor: theme === 'dark' ? '#1d232a' : '#f5f5f5',
+      borderTop: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+    },
+    '& .MuiButtonBase-root': {
+      color: theme === 'dark' ? '#fff' : '#000',
+    },
+    '& .super-app-theme--header': {
+          backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
+
+    },
+  });
 
   return (
     <>
       <DatePicker onDateChange={handleDateChange} onRefresh={handleRefresh} />
-      <div className="flex flex-wrap -mx-4">
-        <div className="w-full md:w-1/2 p-4" data-theme={theme}>
-          <div className="rounded-lg shadow-2xl p-4 dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">Sales Bar Chart</h2>
-            <div className="relative h-64">
-              <Bar data={data} options={options} />
-            </div>
-          </div>
-        </div>
-        <div className="w-full md:w-1/2 p-4" data-theme={theme}>
-          <div className="rounded-lg shadow-2xl p-4 dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">Sales Pie Chart</h2>
-            <div className="relative h-64">
-              <Pie data={data} options={options} />
-            </div>
-          </div>
-        </div>
+      <div style={{ height:500, width: '90%' }}>
+        <DataGrid
+          rows={inventoryData}
+          columns={columns}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+            },
+          }}
+          pageSize={5}
+          rowsPerPageOptions={[10]}
+          disableColumnSelector
+          disableDensitySelector
+          disableSelectionOnClick
+          components={{ Toolbar: GridToolbar }}
+          componentsProps={{
+            toolbar: {
+              showQuickFilter: true,
+              quickFilterProps: { debounceMs: 500 },
+            },
+          }}
+          sx={getThemeStyles(theme) }
+        />
       </div>
     </>
   );

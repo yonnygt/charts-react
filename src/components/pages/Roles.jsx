@@ -123,7 +123,7 @@ const Roles = () => {
 
   return (
     <div className="overflow-x-auto" data-theme={theme}>
-      <h2 className="text-2xl mb-4">Control de Roles</h2>
+      <h2 className="text-2xl mb-4 dark:text-white">Control de Roles</h2>
 
       <button onClick={() => setIsRegisterModalOpen(true)}
         className="mb-4 text-white btn btn-success btn-sm  mr-2 rounded">
@@ -143,7 +143,10 @@ const Roles = () => {
           pageSize={5} // Número de roles por página
           rowsPerPageOptions={[5]} // Opciones de número de roles por página
           pagination
-          sortingMode="client" // Ordenamiento en el lado del servidor
+          sortingMode="client" // Ordenamiento en el lado del servidor  
+          // disableColumnFilter
+          disableColumnSelector
+          disableDensitySelector
           disableSelectionOnClick // Deshabilitar selección al hacer clic
           sx={getThemeStyles(theme) && { '& .super-app-theme--header': {
           backgroundColor: `${theme === 'dark' ? '#1d232a' : '#fff'}`, borderBottom: `1px solid ${theme === 'dark' ? '#555' : '#e0e0e0'}`, color: `${theme === 'dark' ? '#fff' : '#000'}`,
