@@ -104,26 +104,26 @@ const Users = () => {
 
   return (
     <div className="overflow-x-auto" data-theme={theme}>
-      <h2 className="text-2xl mb-4">Control de Usuarios</h2>
+      <h2 className="text-2xl mb-4 dark:text-white">Control de Usuarios</h2>
       <button 
       onClick={() => setIsRegisterModalOpen(true)} 
       className="mb-4 text-white btn btn-success btn-sm  mr-2 rounded">Registrar Usuario</button>
       <table className="table">
         <thead>
           <tr>
-            <th className="py-2">ID</th>
-            <th className="py-2">Nombre</th>
-            <th className="py-2">Role</th>
-            <th className="py-2">Acciones</th>
+            <th className="py-2 dark:text-white">ID</th>
+            <th className="py-2 dark:text-white">Nombre</th>
+            <th className="py-2 dark:text-white">Role</th>
+            <th className="py-2 dark:text-white">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td className="py-2">{user.id}</td>
-              <td className="py-2">{user.username}</td>
-              <td className="py-2">{getRoleName(user.role_id)}</td>
-              <td className="py-1">
+              <td className="py-2 dark:text-white">{user.id}</td>
+              <td className="py-2 dark:text-white">{user.username}</td>
+              <td className="py-2 dark:text-white">{getRoleName(user.role_id)}</td>
+              <td className="py-1 dark:text-white">
                 <button onClick={() => handleEdit(user)} className="btn btn-outline btn-success btn-sm mr-2">Editar</button>
                 <button onClick={() => {
                   setUserToDelete(user);

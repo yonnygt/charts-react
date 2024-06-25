@@ -21,33 +21,22 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
-app.post('/users', async (req, res) => {
-  const { username, password, role } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  try {
-    const result = await pool.query(
-      'INSERT INTO users (username, password, role_id) VALUES ($1, $2, $3) RETURNING *',
-      [username, hashedPassword, role || 'user']
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
+app.get('/protected', authenticateToken, (req, res) => {
+  res.json({ user: req.user });
 });
 
-app.get('/inventory', async (req, res) => {
-  const { startDate, endDate } = req.query;
-  try {
-    const { rows } = await pool.query(
-      'SELECT org, seller, grand_total, sale_date FROM sales WHERE sale_date BETWEEN $1 AND $2',
-      [startDate, endDate]
-    );
-    res.json(rows);
-  } catch (error) {
-    console.error('Error fetching sales data', error);
-    res.status(500).send('Server error');
-  }
-});
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -68,19 +57,34 @@ app.post('/login', async (req, res) => {
   }
 });
 
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+app.get('/analytics', async (req, res) => {
+  const { startDate, endDate } = req.query;
+  try {
+    const { rows } = await pool.query(
+      'SELECT org, seller, grand_total, sale_date FROM sales WHERE sale_date BETWEEN $1 AND $2',
+      [startDate, endDate]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching sales data', error);
+    res.status(500).send('Server error');
+  }
+});
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+app.get('/inventory', async (req, res) => {
+  const { endDate } = req.query;
+  try {
+    const { rows } = await pool.query('SELECT id, org, name, qtyavailable, TO_CHAR(reception_date, \'DD-MM-YYYY\') AS reception_date FROM products WHERE reception_date::DATE <= $1  ',
+    [endDate] 
+  );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching products data', error);
+    res.status(500).send('Server error');
+  }
+});
 
-// Ruta para obtener todos los usuarios (solo para admin)
+
 app.get('/users', authenticateToken, async (req, res) => {
   if (req.user.role !== 1) return res.sendStatus(403);
   try {
@@ -91,7 +95,21 @@ app.get('/users', authenticateToken, async (req, res) => {
   }
 });
 
-// CRUD para los usuarios (solo para admin)
+app.post('/users', async (req, res) => {
+  const { username, password, role } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const result = await pool.query(
+      'INSERT INTO users (username, password, role_id) VALUES ($1, $2, $3) RETURNING *',
+      [username, hashedPassword, role || 'user']
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 app.put('/users/:id', authenticateToken, async (req, res) => {
   if (req.user.role !== 1) return res.sendStatus(403);
   const { id } = req.params;
@@ -115,7 +133,6 @@ app.delete('/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los roles (solo para admin)
 app.get('/roles', authenticateToken, async (req, res) => {
   if (req.user.role !== 1) return res.sendStatus(403);
   try {
@@ -126,7 +143,6 @@ app.get('/roles', authenticateToken, async (req, res) => {
   }
 });
 
-// CRUD para los roles (solo para admin)
 app.post('/roles', authenticateToken, async (req, res) => {
   if (req.user.role !== 1) return res.sendStatus(403);
   const { name } = req.body;
@@ -161,11 +177,8 @@ app.delete('/roles/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ user: req.user });
-});
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

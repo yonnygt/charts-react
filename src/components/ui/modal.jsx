@@ -5,7 +5,7 @@ const Modal = ({ children, title, isOpen, onClose, onEdit, onDelete }) => {
   return (
     <dialog className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">{title}</h3>
+        <h3 className="font-bold text-lg dark:text-white">{title}</h3>
         {children}
         <div className="modal-action flex justify-end space-x-2">
           {onEdit && <button className="btn btn-success" onClick={onEdit}>Actualizar</button>}
