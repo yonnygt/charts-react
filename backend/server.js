@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 
@@ -21,7 +22,7 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (requiredRole) => (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.sendStatus(401);
@@ -33,7 +34,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-app.get('/protected', authenticateToken, (req, res) => {
+app.get('/protected', authenticateToken(), (req, res) => {
   res.json({ user: req.user });
 });
 
@@ -74,7 +75,7 @@ app.get('/analytics', async (req, res) => {
 app.get('/inventory', async (req, res) => {
   const { endDate } = req.query;
   try {
-    const { rows } = await pool.query('SELECT id, org, name, qtyavailable, TO_CHAR(reception_date, \'DD-MM-YYYY\') AS reception_date FROM products WHERE reception_date::DATE <= $1  ',
+    const { rows } = await pool.query('SELECT ROW_NUMBER() OVER (ORDER BY org, name) AS id, org, name, SUM(qtyavailable) AS total_qtyavailable, TO_CHAR(MAX(reception_date), \'DD-MM-YYYY\') AS reception_date FROM products WHERE reception_date::DATE <= $1  GROUP BY org, name',
     [endDate] 
   );
     res.json(rows);
@@ -85,8 +86,7 @@ app.get('/inventory', async (req, res) => {
 });
 
 
-app.get('/users', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.get('/users', authenticateToken(1), async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users');
     res.json(result.rows); 
@@ -110,8 +110,7 @@ app.post('/users', async (req, res) => {
 });
 
 
-app.put('/users/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.put('/users/:id', authenticateToken(1), async (req, res) => {
   const { id } = req.params;
   const { username, role } = req.body;
   try {
@@ -122,8 +121,7 @@ app.put('/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/users/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.delete('/users/:id', authenticateToken(1), async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM users WHERE id = $1', [id]);
@@ -133,8 +131,7 @@ app.delete('/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/roles', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.get('/roles', authenticateToken(1), async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM role');
     res.json(result.rows);
@@ -143,8 +140,7 @@ app.get('/roles', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/roles', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.post('/roles', authenticateToken(1), async (req, res) => {
   const { name } = req.body;
   try {
     const result = await pool.query('INSERT INTO role (name) VALUES ($1) RETURNING *', [name]);
@@ -154,8 +150,7 @@ app.post('/roles', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/roles/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.put('/roles/:id', authenticateToken(1), async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   try {
@@ -166,8 +161,7 @@ app.put('/roles/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/roles/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 1) return res.sendStatus(403);
+app.delete('/roles/:id', authenticateToken(1), async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM role WHERE id = $1', [id]);
