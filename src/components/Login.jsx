@@ -21,16 +21,17 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await login(username, password);
+      navigate('/dashboard');
     } catch (error) {
-      if (error.response && error.response.data.message) {
-        setError(error.response.data.message);
-      } else {
-        setError('Login failed');
-      }
+      console.error('Login failed', error);
+      setError('Usuario o contraseña inválidos');
     }
   };
 

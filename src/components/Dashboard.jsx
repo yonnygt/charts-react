@@ -34,6 +34,8 @@ function Dashboard() {
         return 'Análisis';
         case '/admin/users':
         return 'Panel de administración';
+      case '/admin/roles':
+        return 'Gestión de roles';
       default:
         return '';
     }

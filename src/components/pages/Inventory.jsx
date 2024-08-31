@@ -40,10 +40,10 @@ const Inventory = () => {
 
   // Columnas de la DataGrid
   const columns = [
-    { field: 'id', headerName: 'ID', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'id', headerName: 'Fila', width: 100, headerClassName: 'super-app-theme--header' },
     { field: 'org', headerName: 'Organizacion', width: 200, headerClassName: 'super-app-theme--header' },
     { field: 'name', headerName: 'Nombre', width: 300, headerClassName: 'super-app-theme--header' },
-    { field: 'qtyavailable', headerName: 'Cant Disponible', width: 200, headerClassName: 'super-app-theme--header' },
+    { field: 'total_qtyavailable', headerName: 'Cant Disponible', width: 200, headerClassName: 'super-app-theme--header' },
     { field: 'reception_date', headerName: 'Fecha Recepcion', width: 300, headerClassName: 'super-app-theme--header'}
   ];
 

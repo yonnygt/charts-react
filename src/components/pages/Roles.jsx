@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useTheme } from '../ui/ThemeContext';
+import { Edit, Trash2 } from 'lucide-react'; // Importa los iconos
 
 const Roles = () => {
   const [roles, setRoles] = useState([]);
@@ -76,28 +77,33 @@ const Roles = () => {
 
   // Columnas de la DataGrid
   const columns = [
-    { field: 'id', headerName: 'ID', width: 100, headerClassName: 'super-app-theme--header' },
-    { field: 'name', headerName: 'Nombre', width: 500,  headerClassName: 'super-app-theme--header' },
+    { field: 'id', headerName: 'ID', width: 70, headerClassName: 'super-app-theme--header' },
+    { field: 'name', headerName: 'Nombre', flex: 1, minWidth: 150, headerClassName: 'super-app-theme--header' },
     {
       field: 'actions',
       headerName: 'Acciones',
       headerClassName: 'super-app-theme--header',
-      width: 633,
+      width: 120,
       renderCell: (params) => (
-        <>
-          <button onClick={() => handleEdit(params.row)} className="btn btn-outline btn-success btn-sm mr-2">
-            Editar
+        <div className="flex items-center justify-center w-full">
+          <button
+            onClick={() => handleEdit(params.row)}
+            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 mx-1"
+            title="Editar"
+          >
+            <Edit className="h-5 w-5 text-blue-500" />
           </button>
-
           <button
             onClick={() => {
               setEditRole(params.row);
               setIsDeleteModalOpen(true);
             }}
-            className="btn btn-outline btn-error btn-sm">
-            Eliminar
+            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 mx-1"
+            title="Eliminar"
+          >
+            <Trash2 className="h-5 w-5 text-red-500" />
           </button>
-        </>
+        </div>
       )
     }
   ];
@@ -106,17 +112,34 @@ const Roles = () => {
     backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
     color: theme === 'dark' ? '#fff' : '#000',
     '& .MuiDataGrid-cell': {
-      borderBottom: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+      borderBottom: theme === 'dark' ? '1px solid #2d3748' : '1px solid #e2e8f0',
+      display: 'flex',
+      alignItems: 'center',
     },
     '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: theme === 'dark' ? '#444' : '#f5f5f5',
-      borderBottom: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+      backgroundColor: theme === 'dark' ? '#2d3748' : '#edf2f7',
+      borderBottom: theme === 'dark' ? '2px solid #4a5568' : '2px solid #cbd5e0',
+      color: theme === 'dark' ? '#e2e8f0' : '#2d3748',
     },
     '& .MuiDataGrid-footerContainer': {
-      backgroundColor: theme === 'dark' ? '#1d232a' : '#f5f5f5',
-      borderTop: theme === 'dark' ? '1px solid #555' : '1px solid #e0e0e0',
+      borderTop: theme === 'dark' ? '2px solid #4a5568' : '2px solid #cbd5e0',
+      backgroundColor: theme === 'dark' ? '#2d3748' : '#edf2f7',
     },
     '& .MuiButtonBase-root': {
+      color: theme === 'dark' ? '#e2e8f0' : '#2d3748',
+    },
+    '& .MuiDataGrid-row:hover': {
+      backgroundColor: theme === 'dark' ? '#4a5568' : '#edf2f7',
+    },
+    '& .MuiDataGrid-virtualScroller': {
+      backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
+    },
+    '& .MuiDataGrid-overlayWrapper': {
+      backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
+    },
+    '& .super-app-theme--header': {
+      backgroundColor: theme === 'dark' ? '#1d232a' : '#fff',
+      borderBottom: `1px solid ${theme === 'dark' ? '#555' : '#e0e0e0'}`,
       color: theme === 'dark' ? '#fff' : '#000',
     },
   });
@@ -126,11 +149,11 @@ const Roles = () => {
       <h2 className="text-2xl mb-4 dark:text-white">Control de Roles</h2>
 
       <button onClick={() => setIsRegisterModalOpen(true)}
-        className="mb-4 text-white btn btn-success btn-sm  mr-2 rounded">
+        className="mb-4 text-white btn btn-success btn-sm mr-2 rounded">
         Registrar Rol
       </button>
 
-      <div style={{ height: 400, width: '100%' }}>
+      <div style={{ height: 400, width: '100%', maxWidth: '800px', margin: '0 auto' }}>
         <DataGrid
           rows={roles}
           columns={columns}
@@ -140,17 +163,14 @@ const Roles = () => {
               showQuickFilter: true,
             },
           }}
-          pageSize={5} // Número de roles por página
-          rowsPerPageOptions={[5]} // Opciones de número de roles por página
-          pagination
-          sortingMode="client" // Ordenamiento en el lado del servidor  
-          // disableColumnFilter
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+          pageSizeOptions={[5, 10, 25]}
           disableColumnSelector
           disableDensitySelector
-          disableSelectionOnClick // Deshabilitar selección al hacer clic
-          sx={getThemeStyles(theme) && { '& .super-app-theme--header': {
-          backgroundColor: `${theme === 'dark' ? '#1d232a' : '#fff'}`, borderBottom: `1px solid ${theme === 'dark' ? '#555' : '#e0e0e0'}`, color: `${theme === 'dark' ? '#fff' : '#000'}`,
-        }}}
+          disableRowSelectionOnClick
+          sx={getThemeStyles(theme)}
         />
       </div>
 

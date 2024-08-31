@@ -47,8 +47,12 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
+  const checkRole = (requiredRole) => {
+    return user && user.role === requiredRole;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, checkRole }}>
       {children}
     </AuthContext.Provider>
   );
